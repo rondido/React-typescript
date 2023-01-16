@@ -15,3 +15,4 @@ const k: IKorean = {
     city:'Busan',
     age:29
 };
+

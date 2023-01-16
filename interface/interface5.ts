@@ -18,3 +18,4 @@ class Person implements IPerson1{
 
 const person:IPerson1 = new Person('mark');
 person.hello();
+

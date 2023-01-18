@@ -1,24 +1,20 @@
 
 class Person{
 
-    public name:string = "Mark";
-    private age!:number;
-    
-    //값을 할당해주거나 contructor를 사용해야함
-    //!를 사용할때는 p1.age처럼 할당해주어야함..
-    //밑에서 constructor를 사용하였기때문에 age에서 !를 빼도 무방하다
-    public constructor(age?:number){
-        if(age === undefined){
-            this.age = 20;
-        }else{
-            this.age = age;
-        }        
+    public readonly name:string = 'Park';
+    private readonly country:string;
+
+    public constructor(public _name:string, private age:number){
+        this.country = 'Korea';
     }
-
-    public async init(){
-
+    
+    hello(){
     }
 }
 
-const p1:Person = new Person(20);
-console.log(p1);
+const p1:Person = new Person('mark',20);
+console.log(p1.name); //get 을 하는 함수 getter
+p1._name = "Hi"; //set 을 하는 함수 setter
+console.log(p1.name); //get 을 하는 함수 getter
+
+

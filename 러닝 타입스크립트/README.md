@@ -143,3 +143,32 @@ someString = ":)";
 ### 엄격한 null 검사
 
 리터럴로 좁혀진 유니언의 힘은 타입스크립트에서 엄격한 null 검사라 부르는 타입 시스템 영역인 ‘잠재적으로 정의되지 않은 undefiend 값’으로 작업할 때 특히 두드러집니다. 타입스크립트는 두려운 ‘십억 달러의 실수’를 바로잡기 위해 엄격한 null검사를 사용하며 이는 최신의 프로그래밍 언어의 큰 변화 중 하나임.
+
+### 십억 달러의 실수
+
+가장 유용한 옵션 중 하나인 strictnullChecks는 엄격한 null 검사를 활성화할지 여부를 결정합니다. 간략하게 설명하면, strictNullchecks는 비활성화면 코드의 모든 타입에 | null | undefined를 추가해야 모든 변수가 null 또는 undefined를 할당할 수 있다.
+
+strictNullchecks 옵션을 false로 설정하면 다음 코드의 타입은 완벽히 안전하다고 간주됩니다. 하지만 틀렸다.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/6d3d3612-b8b5-4ea3-b111-3a95b9cc752a/Untitled.png)
+
+엄격한 null 검사를 활성화해야만 코드가 null 또는 undefined 값으로 인한 오류로부터 안전한지 여부를 쉽게 파악할 수 있다.
+
+타입스크립트의 모범 사례는 일반적으로 엄격한 null 검사를 활성화하는 것입니다. 그렇게 해야만 충돌을 방지하고 십억 달러의 실수를 제거할 수 있다.
+
+### 참 검사를 통한 내로잉
+
+자바스크립트에서 참 또는 truthy는 && 연산자 또는 if 문처럼 boolean 문맥에서 true로 간주된다는 점을 떠올려보세요. 자바스크립트에서 false, 0, -0, 0n, “”, null, undefined, NaN처럼 falsy로 정의된 값을 제외한 모든 값은 모두 참입니다.
+
+타입스크립트는 잠재적인 값 중 truithy로 확인된 일부에 한해서만 변수의 타입을 좁힐 수 있습니다. 다음 코드에서 geneticist는 string | undefined 타입이며 undefined는 항상 falsy이므로 타입스크립트는 if 문의 코드 블록에서는 geneticist가 string 타입이 되어야 한다고 추론할 수 있다.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/f20dc9ca-d74e-4cd1-8b77-2a2a920a7e6f/Untitled.png)
+
+논리 연산자인 && 와 ?는 참 여부를 감사하는 일도 잘 수행합니다. 하지만 안타깝게도 참 여부 확인 외에 다른 기능은 제공하지 않는다. string | undefined 값에 대해 알고 있는 것이 falsy라면, 그것이 빈 문자열인지 undefined인지는 알 수 없다.
+
+```tsx
+geneticist && geneticist.toUpperCase();
+geneticist?.toUpperCase();
+```
+
+다음 코드에서 biologist는 false | string 타입이고, if 문에서는 string으로 좁힐 수 있지만 else 문에서 biologist가 빈 문자열인 경우에는 여전히 string이 될 수 있음을 알 수 있다.

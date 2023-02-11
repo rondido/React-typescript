@@ -172,3 +172,85 @@ geneticist?.toUpperCase();
 ```
 
 다음 코드에서 biologist는 false | string 타입이고, if 문에서는 string으로 좁힐 수 있지만 else 문에서 biologist가 빈 문자열인 경우에는 여전히 string이 될 수 있음을 알 수 있다.
+
+### 초기값이 없는 변수
+
+자바스크립트에서 초깃값이 없는 변수는 기본적으로 undefined가 됩니다. 이는 타입 시스템에서 극단적인 경우를 나타내기도 합니다. 만일 undefined를 포함하지 않는 타입으로 변수를 선언한 다음, 값을 할당하기 전에 사용하려고 시도하면 어떻게 될까요?
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/f33531e1-e9a5-4129-b7ee-b6e2907137bb/Untitled.png)
+
+변수 타입에 undefined가 포함되어 있는 경우에는 오류가 보고되지 않습니다. 변수 타입에 | undefined를 추가하면, undefined는 유효한 타입이기 때문에 사용 전에는 정의할 필요가 없음을 타입스크립트에 나타냄.
+
+이전 코드 스니펫에서 mathematician의 타입이 string | undefiend이면 어떤 오류도 발생하지 않는다.
+
+```tsx
+let mathematician: string | undefined;
+mathematician?.length;
+
+mathematician = "mark";
+mathematician.length;
+```
+
+## 타입 별칭
+
+코드에서 볼 수 있는 유니언 타입 대부분은 두세 개의 구성 요소만 갖습니다 .그러나 가끔 반복해서 입력하기 불편한 조금 긴 형태의 유니온 타입을 발견할 수 있습니다.
+
+다음 각 변수는 5개의 가능한 타입 중 하나가 될 수 있다.
+
+```tsx
+let rawDataFirst: boolean | number | string | null | undefined;
+let rawDataSecond: boolean | number | string | null | undefined;
+let rawDataThird: boolean | number | string | null | undefined;
+```
+
+타입스크립트에는 재사용하는 타입에 더 쉬운 이름을 할당하는 타입 별칭이 있다. 타입 별칭은 type 새로운 이름 = 타입 형태를 갖는다. 편의상 타입 별칭은 파스칼 케이스로 이름을 지정함.
+
+```tsx
+type MyName = ...;
+```
+
+타입 별칭은 타입 시스템의 ‘복사해서 붙여넣기’처럼 작동함. 타입스크립트가 타입 별칭을 발견하면 해당 별칭이 참조하는 실제 타입을 입력한 것처럼 작동함. 앞서 살펴본 변수의 타입 에너테이션에서 상당히 길었던유니언 타입을 타입 별칭을 사용해 다음과 같이 작성할 수 있습니다.
+
+```tsx
+type RawData = boolean | number | string | null | undefined;
+let rawDataFirst: RawData;
+let rawDataSecond: RawData;
+let rawDataThird: RawData;
+```
+
+훨씬 읽기 쉽다.
+
+타입 별칭은 타입이 복잡해질 때마다 사용할 수 있는 편리한 기능임. 여기서는 여러 타입을 가질 수 있는 형태의 유니언 타입만 다뤘지만 이후 array,function, object 타입도 포함해보겠다.
+
+### 타입 별칭은 자바스크립트가 아닙니다.
+
+타입 별칭은 타입 에너테이션처럼 자바스크립트로 컴파일되지 않습니다. 순전히 타입스크립트 타입 시스템에만 존재한다.
+
+따라서 앞서 다룬 코드 스니펫은 다음 자바스크립트로 컴파일 됨.
+
+```tsx
+let rawDataFirst;
+let rawDataSecond;
+let rawDataThird;
+```
+
+타입 별칭은 순전히 타입 시스템에만 존재하므로 런타임 코드에서는 참조할 수 없다. 타입 스크립트는 런타임에 존재하지 않는 항목에 접근하려면 타입 오류로 알려줌.
+
+![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/96a06db1-b530-4039-b13f-666ab085cecd/Untitled.png)
+
+타입 별칭은 순전히 ‘개발 시’에만 존재함.
+
+### 타입 별칭 결합
+
+타입 별칭은 다른 타입 별칭을 참조할 수 있다. 유니언 타입인 타입 별칭 내에 또 다른 유니언 타입 별칭을 포함하고 있다면 다른 타입 별칭을 참조하는 것이 유용하다.
+
+IdMaybe 타입은 undefined와 null, 그리고 Id 내의 타입을 포함한 유니언 타입임.
+
+```tsx
+type Id = number | string;
+
+//IdMaybe 타입은 다음과 같음; number | string | undefined | null
+type IdMaybe = Id | undefined | null;
+```
+
+사용 순서대로 타입 별칭을 선안할 필요는 없다. 파일 내에서 타입 별칭을 먼저 선언하고 참조할 타입 별칭을 나중에 선언해도 됨.

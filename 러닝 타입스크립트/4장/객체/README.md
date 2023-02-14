@@ -71,3 +71,149 @@ let withLastName:withLastName=hasBoth;
 둘사이 일치하지 않는 타입도 허용되지 않는다. 객체 타입은 필수 속성 이름과 해당 속성이 예상되는 타입을 모두 지정함. 객체의 속성이 일치하지 않으면 타입스크립트는 타입 오류를 발생시킴
 
 ![Untitled](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/77698746-20fc-4320-ba34-9c843f34bd48/Untitled.png)
+
+## 초과 속성 검사
+
+변수가 객체 타입으로 선언되고, 초깃값에 객체 타입에서 정의된 것보다 많은 필드가 있다면
+
+타입스크립트에서 타입 오류가 발생함. 따라서 변수를 객체 타입으로 선언하는 것은 타입 검사기가 해당 타입에 예상되는 필드만 있는지 확인하는 방법이기도 함.
+
+다음 poetMatch 변수는 별칭 객체 타입에 정의된 필드가 Poet에 정확히 있지만, 초과 속성이 있는 extraProperty는 타입 오류를 발생시킴
+
+```jsx
+type Poet={
+    born:number;
+    name:string;   
+}
+
+const poetMatch:Poet ={
+    born:1928,
+    name:"mark"
+}
+
+const extraProperty:Poet={
+    activity:"123",
+    born:1928,
+    name:"mark"
+}
+```
+
+초과 속성 검사는 객체 타입으로 선언된 위치에서 생성되는 객체 리터럴에 대해서만 일어난다.
+
+기존 객체 리터럴을 제공하면 초과 속성 검사를 우회함.
+
+```jsx
+type Poet= {
+    born:number;
+    name:string;
+}
+const existingObject = {
+    activity:"marking",
+    born:1935,
+    name:"mark"
+}
+
+const extraPropertyButOk:Poet = existingObject;
+```
+
+### 중첩된 객체 타입
+
+자바스크립트 객체는 다른 객체의 멤버로 중첩될 수 있으므로 타입스크립트의 객체 타입도 타입 시스템에서 중첩된 객체 타입을 나타낼 수 있어야 함. 이를 구현하는 구문은 이전과 동일하지만 기본 이름 대신에 {…} 객체 탕타입을 사용합니다.
+
+```jsx
+type Poem = {
+    author:{
+        firstName:string;
+        lastName:string;
+    };
+    name:string;
+}
+
+const peomMatch: Poem = {
+    author:{
+        firstName:"syvlia",
+        lastName:'Park',
+    },
+    name:"Lady"
+}
+
+const peomMismatch:Poem={
+    author:{
+        name:"mark"
+    }
+}
+```
+
+Peom 타입은 author 속성이 fistName: string과 lastName: string인 객체로 선언. peomMatch 변수는 Poem과 일치하기대문에 할당할 수 있지만 peomMismatch는 author 속성에 firstname과 lastname 대신 name을 포함하므로 할당 할 수 없다.
+
+Poem 타입을 작성할 때 author 속성의 형태를 자체 별칭 객체 타입으로 추출하는 방법도 있다. 중첩된 타입을 자체 타입 별칭으로 추출하면 타입스크립트의 타입 오류 메시지에 더 많은 정보를 담을 수 있다. 이 경우에는 {firstName:string, lastName:string;} 대신 Author를 사용할 수 있다.
+
+```jsx
+type Author = {
+     firstName:string;
+    lastName:string;
+}
+type Poem = {
+    author:Author;
+    name:string;
+}
+
+const peomMatch: Poem = {
+    author:{
+        firstName:"syvlia",
+        lastName:'Park',
+    },
+    name:"Lady"
+}
+
+const peomMismatch:Poem={
+    author:{
+        name:"mark"
+    }
+}
+```
+
+### 선택적 속성
+
+모든 객체에 객체 타입 속성이 필요한건 아닙니다. 타입의 속성 애너테이션에서 : 앞에 ?를 추가하면 선택적 속성임을 나타낼 수 있다.
+
+다음 Book 타입은 pages 속성만 필요하고 author 속성은 선택적으로 허용함. 객체가 pages 속성을 제공하기만 하면 author 속성은 제공하거나 생략할 수 있다.
+
+```tsx
+type Book = {
+    author?:string;
+    pages:number;
+}
+
+const ok:Book ={
+    author:"mark",
+    pages:80
+}
+
+const missing:Book ={
+    author:"Rita",
+}
+//error: Property 'pages' is missing in type
+
+```
+
+선택적 속성과 undefined를 포함한 유니언 타입의 속성 사이에는 차이가 있음을 명심하세요. ?를 사용해 선택적으로 선언된 속성은 존재하지 않아도 됨. 필수로 선언된 속성과 | undefiend는 그 값이 undefined일지라도 반드시 존재해야 함.
+
+다음 Writers 타입의 editor 속성은 ?를 사용해 선언했으므로 변수를 선언할 때 생략이 가능함. author 속성은 ?가 없으므로 값이 undefiend여도 반드시 존재해야 함.
+
+```jsx
+type Writers ={
+    author:string | undefined;
+    editr?:string;
+}
+
+const hasRequired: Writers={
+    author:undefined,
+}
+
+const missingRequired:Writers = {};
+```
+
+## 객체 타입 유니언
+
+타입스크립트 코드에서는 속성이 조금 다른, 하나 이상의 서로 다른 객체 타입이 될 수 있는 타입을 설명할 수 있어야 함. 또한 속성값을 기반으로 해당 객체 타입 간에 타입을 좁혀야할 수 있다.

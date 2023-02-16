@@ -323,3 +323,27 @@ poem.pages; //error
 ```
 
 판별된 유니언은 우아한 자바스크립트 패턴과 타입스크립트의 타입 내로잉을 아름답게 결합하므로 타입스크립트에서 필자가 가장 좋아하는 기능임.
+
+## 교차 타입
+
+타입스크립트 유니언 타입은 둘 이상의 다른 타입 중 하나의 타입이 될 수 있음을 나타냄. 자바스크립트의 런타임 | 연산자가 & 연산자에 대응하는 역할을 하는 것처럼, 타입스크립트에서도 & 교차 타입을 사용해 여러 타입을 동시에 나타냄. 교차 타입은 일반적으로 여러 기존 객체 타입을 별칭 객체 타입으로 결합해 새로운 타입을 생성함.
+
+다음 Artwork와 Writing 타입은 genre,name,pages 속성을 결합한 WrittenArt 타입을 형성하는 데 사용
+
+```jsx
+type Artwork = {
+    genre:string;
+    name:string;
+}
+
+type Writing ={
+    pages:number;
+    name:string;
+}
+
+type WrittemArt = Artwork & Writing;
+```
+
+교차 타입은 유니언 타입과 결합할 수 있으며, 이는 하나의 타입으로 판별된 유니언 타이블 설명하는 데 유용함.
+
+다음 ShortPoem 타입은 항상 author 속성을 가지며 하나의 type 속성으로 판별된 유니언 타입임.

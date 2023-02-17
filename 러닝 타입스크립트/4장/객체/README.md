@@ -332,14 +332,14 @@ poem.pages; //error
 
 ```jsx
 type Artwork = {
-    genre:string;
-    name:string;
-}
+  genre: string,
+  name: string,
+};
 
-type Writing ={
-    pages:number;
-    name:string;
-}
+type Writing = {
+  pages: number,
+  name: string,
+};
 
 type WrittemArt = Artwork & Writing;
 ```
@@ -347,3 +347,70 @@ type WrittemArt = Artwork & Writing;
 교차 타입은 유니언 타입과 결합할 수 있으며, 이는 하나의 타입으로 판별된 유니언 타이블 설명하는 데 유용함.
 
 다음 ShortPoem 타입은 항상 author 속성을 가지며 하나의 type 속성으로 판별된 유니언 타입임.
+
+```jsx
+type ShortPoem = { author: string } & (
+  | { kigo: string, type: "haiku" }
+  | { meter: number, type: "villanelle" }
+);
+
+const morningGlory: ShortPoem = {
+  author: "Fukuda",
+  kigo: "morning Glory",
+  type: "haiku",
+};
+
+const oneArt: ShortPoem = {
+  // error:Type{author:string; type:"villanelle"}
+  // is not assignable to type 'ShortPoem'.
+  // type '{author:string; type:"villanelle";}
+  author: "Bishop",
+  type: "villanelle",
+};
+```
+
+### 교차 타입의 위험성
+
+교차 타입은 유용한 개념이지만, 여러분 스스로나 타입스크립트 컴파일러를 혼동시키는 방식으로 사용하기 쉽다. 교차 타입을 사용할 때는 가능한 한 코드를 간결하게 유지해야 합니다.
+
+### 긴 할당 가능성 오류
+
+유니언 타입과 결합하는 것처럼 복잡한 교차 타입을 만들게 되면 할당 가능성 오류 메시지는 읽기 어려워짐. 다시 말해 복잡하면 복잡할수록 타입 검사기의 메시지도 이해하기 더 어려워짐. 이 현상은 타입스크립트의 타입 시스템, 그리고 타입을 지정하는 프로그래밍 언어에서 공통적으로 관측됨.
+
+이전 코드 스니펫의 ShortPoem의 경우 타입스크립트가 해당 이름을 출력하도록 타입을 일련의 별칭으로 객체 타입으로 분할하면 읽기가 훨씬 쉬워짐.
+
+```jsx
+type ShortPoemBase = {author:string};
+type Haiku = ShortPoemBase & {kigo:string; type:"haiku"};
+type villamelle = ShortPoemBase & {meter:number; type:"villanelle"};
+type ShortPoem = Haiku & villamelle;
+
+const oneArt:ShortPoem = {
+//error" Type '{author:string; type:"villanelle"}
+//is not assignable to type "shortPoem"
+//typde '{author:string; type:"villanenlle";}'
+    author:"Elizabeth Bishop",
+    type:"villanelle
+}
+```
+
+### never
+
+교차 타입은 잘못 사용하기 쉽고 불가능한 타입을 생성합니다. 원시 타입의 값은 동시에 여러 타입이 될 수 없기 때문에 교차 타입의 구성 요소로 함께 결합할 수 없다. 두 개의 원시 타입을 함께 시도하면 never 키워드로 표시되는 never 타입이 됨.
+
+```jsx
+type NotPossible = number & string; //타입: never
+```
+
+never 키워드와 never 타입은 프로그래밍 언어에서 bottom 타입 또는 empty 타입을 뜻함. bottom 타입은 값을 가질 수 없고 참조할 수 없는 타입이므로 bottom 타입에 그 어떠한 타입도 제공할 수 없다.
+
+```jsx
+type NotPossible = number & string; //타입 :never
+let notNumber: NotPossible = 0;
+
+//Error: Type 'number' is not assignable to type 'never'.
+
+let notString: never = "";
+```
+
+대부분의 타입스크립트 프로젝트는 never 타입을 거의 사용하지 않지만 코드에서 불가능한 상태를 나타내기 위해 가끔 등장함 하지만 대부분 교차 타입을 잘못 사용해 발생한 실수일 가능성이 높다.

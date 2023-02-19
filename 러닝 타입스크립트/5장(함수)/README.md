@@ -112,3 +112,69 @@ function announceSongBy(singer?: string, song: string) {
 //
 //ERror:A required parameter cannot follow an optional parameter
 ```
+
+### 기본 매개변수
+
+자바스크립트에서 선택적 매개변수를 선언할 때 =와 같이 포함된 기본값을 제공할 수 있습니다. 즉. 선택적 매개변수에는 기본적으로 값이 제공되기 때문에 해당 타입스크립트 타입에는 암묵적으로 함수 내부에 | undefined 유니언 타입이 추가됨. 타입스크립트는 함수의 매개변수에 대해 인수를 누락하거나 undefined 인수를 사용해서 호출하는 것을 여전히 허용함.
+
+타입스크립트의 타입 추론은 초기 변숫값과 마찬가지로 기본 함수 매개변수에 대해서도 유사하게 작동함. 매개변수에 기본값이 있고 타입 애너테이션이 없는 경우, 타입스크립트는 해당 기본값을 기반으로 매개변수 타입을 유추함.
+
+다음 rateSong 함수에서 rating은 number 타입으로 유추되지만, 함수를 호출하는 코드에서는 선택적 number | undefined가 됨.
+
+```jsx
+function rateSong(song: string, rating = 0) {
+  console.log(`${song}:get ${rating}/5 starts`);
+}
+
+rateSong("Photo"); //ok
+rateSong("Set Fire to The rain", 5); //ok
+rateSong("Set fire to the rain", undefined); //ok
+
+rateSong("At Lost", "100");
+//eror:Argument of type 'string' is not assignable to parameter of type 'number'.
+```
+
+### 나머지 매개변수
+
+자바스크립트의 일부 함수는 임의의 수의 인수로 호출할 수 있도록 만들어짐, … 스프레드 연산자는 함수 선언의 마지막 매개변수에 위치하고, 해당 매개변수에서 시작해 함수에 전달된 나머지 인수가 모두 단일 배열에 저장되어야 함을 나타냄.
+
+타입스크립트는 이러한 나머지 매개변수의 타입을 일반 매개변수와 유사하게 선언할 수 있다. 단, 인수 배열을 나타내기 위해 끝에 [] 구문이 추가된다는 점만 다르다.
+
+다음 singAllTheSongs는 songs나머지 매개변수에 대해 0개 이상의 string 타입 인수를 사용할 수 있다.
+
+```jsx
+function singAllTheSongs(singer: string, ...songs: string[]) {
+  for (const song of songs) {
+    console.log(`${song},by ${singer}`);
+  }
+}
+
+singAllTheSongs("keys"); //ok
+singAllTheSongs("Gaga", "Bad", "just", "poker face"); //ok
+singAllTheSongs("keys", 2000); //ok
+
+//error:Argument of type 'number' is not assignable to parameter of type 'string'.
+```
+
+### 반환 타입
+
+타입스크립트는 지각적입니다. 함수가 반환할 수 있는 가능한 모든 값을 이해하면 함수가 반환하는 타입을 알 수 있다. 이번 예제에서 singSongs는 타입스크립트에서 number를 반환하는 것으로 파악됨.
+
+```jsx
+function singSong(songs: string[]) {
+  for (const song of songs) {
+    console.log(`${song}`);
+  }
+  return songs.length;
+}
+```
+
+함수에 다른 값을 가진 여러 개의 반환문을 포함하고 있다면, 타입스크립트는 반환 타입을 가능한 모든 반환 타입의 조합으로 유추됨.
+
+다음 코드에서 getSongAt 함수는 string | undefined를 반환하는 것으로 유추됨. 두가지 가능한 반환 값이 각각 string과 undefiend이기 때문임.
+
+```jsx
+function getSongAt(songs: string[], index: number) {
+  return index < songs.length ? songs[index] : undefined;
+}
+```

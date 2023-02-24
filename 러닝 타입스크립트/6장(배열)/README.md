@@ -132,3 +132,25 @@ const soldiresOrDates = ["Debarsh", new Date(1782,6,3)];
 //타입: string | Date
 const soldireorDate = soldiresOrDates[0];
 ```
+
+### 주의 사항: 불안정한 멤버
+
+타입스크립트 타입 시스템은 기술적으로 불안정하다고 알려져 있다. 대부분 올바른 타입을 얻을 수 있다면, 때로는 값 타입에 대한 타입 시스템의 이해가 올바르지 않을 수 있다.
+
+특히 배열은 타입 시스템에 불안정한 소스임.  기본적으로 타입스크립트는 모든 배열의 맴버에 대한 접근이 해당 배열의 맴버를 반환한다고 가정하지만, 자바스크립트에서조차도 배열의 길이보다 큰 인덱스로 배열 요소의 접근하면 undefined를 제공한다. 
+
+다음 코드는 타입스크립트 컴파일의 기본 설정에서 오류를 표시하지 않습니다.
+
+```jsx
+function withElements(elements:string[]){
+	console.log(elements[9001].length); //타입 오류 없음
+}
+withElements(["it's", "over"]);
+```
+
+이 책의 독자라면 런타임 시 Cannot read property ‘length’ of undefined가 발생하며 충돌할 거라고 유추할 수 있지만, 타입스크립트는 검색된 배열의 멤버가 존재하는지 의도적으로 확인하지 않습니다. 코드 스니펫에서 elements[9001]은 undefined가 아니라 string 타입으로 간주됨.
+
+<aside>
+💡 타입스크립트는 배열 조회를 다 제한하고 타입을 안전하게 만드는 noUncheckedIndexedAccess플래그가 있지만 이 플래그는 매우 엄격해서 대부분의 프로젝트에서 사용하지 않습니다.
+
+</aside>
